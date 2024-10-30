@@ -15,6 +15,8 @@ Before jumping into the pre-requisites and specific section contribution guidanc
 
 This [site](https://aka.ms/avm) is built using [Hugo](https://gohugo.io/), a static site generator, that's source code is stored in the [AVM GitHub repo](https://aka.ms/avm/repo) (link in header of this site too) and is hosted on [GitHub Pages](https://pages.github.com), via the repo.
 
+To provide an optimal search experience, we are using [pagefind](https://pagefind.app/) instead of the built-in search enging, that Hugo offerer. This requires an extra step after building the pages to generate the search index.
+
 The reason for the combination of Hugo & GitHub pages is to allow us to present an easy to navigate and consume library, rather than using a native GitHub repo, which is not easy to consume when there are lots of pages and folders. Also, Hugo generates the site in such a way that it is also friendly for mobile consumers.
 
 ### But I don't have any skills in Hugo?
@@ -33,7 +35,7 @@ When in VS Code you should be able to open a terminal and run the below commands
 
 ```text
 cd docs
-hugo server -D
+hugo -D ; npx pagefind --site "public" ; hugo server -D
 ```
 
 ### Software/Applications
@@ -50,6 +52,10 @@ You can use `winget` to install all the pre-requisites easily for you. See the [
     - `editorconfig.editorconfig`, `streetsidesoftware.code-spell-checker`, `ms-vsliveshare.vsliveshare`, `medo64.render-crlf`, `vscode-icons-team.vscode-icons`
     - VS Code will recommend automatically to install these when you open this repo, or a fork of it, in VS Code.
 - [Hugo Extended](https://gohugo.io/installation/)
+
+{{< hint type="tip" >}}
+Use the provided [Visual Studio Code Dev Container](https://code.visualstudio.com/docs/devcontainers/containers), which provides all requirements already installed. In this case only Docker is required on your local machine.
+{{< /hint >}}
 
 ### winget Install Commands
 

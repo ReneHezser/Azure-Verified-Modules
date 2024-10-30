@@ -37,5 +37,8 @@ terraform.rc
 docs/.hugo_build.lock
 docs/public/*
 
+# Node.js
+node_modules
+
 # MacOS
 .DS_Store

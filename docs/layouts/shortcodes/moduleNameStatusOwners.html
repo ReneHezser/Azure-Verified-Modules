@@ -23,6 +23,7 @@
 {{ $ModuleContributorsGHTeamColumnId := 0 }}
 {{ $DescriptionColumnId := 0 }}
 {{ $CommentsColumnId := 0 }}
+{{ $TagsColumnId := 0 }}
 {{ $hasModulesAvailable := false }}
 {{ $maps := slice }}
 {{ $i := 0 }}
@@ -45,6 +46,7 @@
   {{ $ModuleContributorsGHTeamColumnId = 13 }}
   {{ $DescriptionColumnId = 14 }}
   {{ $CommentsColumnId = 15 }}
+  {{ $TagsColumnId = 17 }}
 
   {{ range $row, $rows }}
     {{ $map := dict
@@ -64,6 +66,7 @@
       "ModuleContributorsGHTeam" (index $row $ModuleContributorsGHTeamColumnId)
       "Description" (index $row $DescriptionColumnId)
       "Comments" (index $row $CommentsColumnId)
+      "Tags" (index $row $TagsColumnId)
     }}
     {{ $maps = $maps | append $map }}
   {{ end }}
@@ -83,6 +86,7 @@
   {{ $ModuleContributorsGHTeamColumnId = 11 }}
   {{ $DescriptionColumnId = 12 }}
   {{ $CommentsColumnId = 13 }}
+  {{ $TagsColumnId = 17 }}
 
   {{ range $row, $rows }}
     {{ $map := dict
@@ -100,6 +104,7 @@
       "ModuleContributorsGHTeam" (index $row $ModuleContributorsGHTeamColumnId)
       "Description" (index $row $DescriptionColumnId)
       "Comments" (index $row $CommentsColumnId)
+      "Tags" (index $row $TagsColumnId)
     }}
     {{ $maps = $maps | append $map }}
   {{ end }}
@@ -168,7 +173,7 @@
   <tr>
     <td>{{ printf "%02d" $i }}{{ $i = add $i 1 }}</td>
     <td>{{ if $useLinks }} {{ if or (eq $item.ModuleStatus "Available :green_circle:") (eq $item.ModuleStatus "Orphaned :eyes:") }} <a href="{{ $item.RepoURL }}">{{ $item.ModuleName }}</a> {{ else }} {{ $item.ModuleName }} {{ end }} {{else}} {{ $item.ModuleName }} {{ end }} </td>
-    <td>{{ $item.ModuleDisplayName }}</td>
+    <td data-pagefind-weight="6">{{ $item.ModuleDisplayName }}{{ if ne $item.Tags ""}}{{ range split $item.Tags "," }}<span style="display: none;" data-pagefind-filter="tag">{{ . }}</span>{{ end }}{{ end}}</td>
     <td>{{ if or (eq $item.ModuleStatus "Available :green_circle:") (eq $item.ModuleStatus "Orphaned :eyes:") }}<a href="https://mcr.microsoft.com/v2/bicep/{{ $item.ModuleName }}/tags/list"><image src="https://img.shields.io/badge/{{ emojify $trimmedModuleStatus }}-{{ $moduleLatestVersion }}-blue"/></a> {{ else }} <a href=""><image src="https://img.shields.io/badge/{{ emojify $trimmedModuleStatus }}-N/A-blue"/></a> {{ end }}</td>
     <td>{{ if ne $item.PrimaryModuleOwnerGHHandle ""}}<a href="https://github.com/{{ $item.PrimaryModuleOwnerGHHandle }}">{{ $item.PrimaryModuleOwnerGHHandle }}</a> {{ if and (ne $item.PrimaryModuleOwnerGHHandle "") (ne $item.PrimaryModuleOwnerDisplayName "") }} <br> ({{ $item.PrimaryModuleOwnerDisplayName }}) {{ end }} {{ end}} <br> {{ if ne $item.SecondaryModuleOwnerGHHandle ""}}<a href="https://github.com/{{ $item.SecondaryModuleOwnerGHHandle }}">{{ $item.SecondaryModuleOwnerGHHandle }}</a> {{ if and (ne $item.SecondaryModuleOwnerGHHandle "") (ne $item.SecondaryModuleOwnerDisplayName "") }} <br> ({{ $item.SecondaryModuleOwnerDisplayName }}) {{ end }} {{ end}}</td>
   </tr>
@@ -229,7 +234,7 @@
     <td>{{ printf "%02d" $i }}{{ $i = add $i 1 }}</td>
     <td>{{ if $useLinks }} {{ if or (eq $item.ModuleStatus "Available :green_circle:") (eq $item.ModuleStatus "Orphaned :eyes:") }} <a href="{{ $item.PublicRegistryReference }}">{{ $item.ModuleName }}</a> {{ else }} {{ $item.ModuleName }} {{ end }} {{else}} {{ $item.ModuleName }} {{ end }} </td>
     <td>{{ if $useLinks }} {{ if or (eq $item.ModuleStatus "Available :green_circle:") (eq $item.ModuleStatus "Orphaned :eyes:") }} <a href="{{ $item.RepoURL }}" style="color: inherit; text-decoration: none; background-color: transparent;">📄</a> {{ else }} {{ "n/a" }} {{ end }} {{else}} {{ "n/a" }} {{ end }} </td>
-    <td>{{ $item.ModuleDisplayName }}</td>
+    <td data-pagefind-weight="6">{{ $item.ModuleDisplayName }}{{ if ne $item.Tags ""}}{{ range split $item.Tags "," }}<span style="display: none;" data-pagefind-filter="tag">{{ . }}</span>{{ end }}{{ end}}</td>
     <td>{{ if or (eq $item.ModuleStatus "Available :green_circle:") (eq $item.ModuleStatus "Orphaned :eyes:") }}<a href="{{ $item.PublicRegistryReference }}"><image src="https://img.shields.io/badge/{{ emojify $trimmedModuleStatus }}-{{ $moduleLatestVersion }}-purple"/></a> {{ else }} <a href=""><image src="https://img.shields.io/badge/{{ emojify $trimmedModuleStatus }}-N/A-purple"/></a> {{ end }}</td>
     <td>{{ if ne $item.PrimaryModuleOwnerGHHandle ""}}<a href="https://github.com/{{ $item.PrimaryModuleOwnerGHHandle }}">{{ $item.PrimaryModuleOwnerGHHandle }}</a> {{ if and (ne $item.PrimaryModuleOwnerGHHandle "") (ne $item.PrimaryModuleOwnerDisplayName "") }} <br> ({{ $item.PrimaryModuleOwnerDisplayName }}) {{ end }} {{ end}} <br> {{ if ne $item.SecondaryModuleOwnerGHHandle ""}}<a href="https://github.com/{{ $item.SecondaryModuleOwnerGHHandle }}">{{ $item.SecondaryModuleOwnerGHHandle }}</a> {{ if and (ne $item.SecondaryModuleOwnerGHHandle "") (ne $item.SecondaryModuleOwnerDisplayName "") }} <br> ({{ $item.SecondaryModuleOwnerDisplayName }}) {{ end }} {{ end}}</td>
   </tr>
