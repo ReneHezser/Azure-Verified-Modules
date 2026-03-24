@@ -1,0 +1,74 @@
+# Workflow for mirroring the MAR file to check Bicep modules against.
+name: Mirror MAR File
+
+on:
+  # Runs everyday at 4 am
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: "0 4 * * *" # Daily Update at 4 am
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch: {}
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  id-token: write
+  contents: write
+
+# Default to bash
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  # Build job
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout tag
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref_name }}
+
+      # create a token
+      - uses: actions/create-github-app-token@v2
+        id: app-token
+        with:
+          owner: ${{ vars.MAR_REPO_OWNER}}
+          repositories: ${{ vars.MAR_REPO_REPOSITORY }}
+          app-id: ${{ vars.MAR_REPO_ACCESS_APPID }}
+          private-key: ${{ secrets.MAR_REPO_ACCESS_APP_PRIVATEKEY }}
+      # ensure the module is in the MAR file before publishing
+      - name: Confirm module in MAR
+        shell: pwsh
+        run: |
+          . './utilities/tools/platform/Get-ModuleNamesFromMAR.ps1'
+          # get the list of module names in the MAR file as string array
+          $marModuleList = Get-ModuleNamesFromMAR -GitHubToken ${{ steps.app-token.outputs.token }} -Owner ${{ vars.MAR_REPO_OWNER}} -Repo ${{ vars.MAR_REPO_REPOSITORY }}
+
+          # set the content as JSON of the local MAR file to the list of module names retrieved from the MAR file in the repository
+          $localMARFilePath = Join-Path $env:GITHUB_WORKSPACE 'docs\static\module-indexes\BicepMARModules.json'
+          Set-LocalMARFileContent -LocalMARFilePath $localMARFilePath -FileContent $marModuleList
+
+      - name: Check for changes
+        id: git_status
+        shell: pwsh
+        run: |
+          $diff = git diff --name-only -- 'docs/static/module-indexes/BicepMARModules.json'
+          if ($diff.Count -gt 0) {
+            Write-Verbose 'Detected updates to mirrored MAR file.' -Verbose
+            'changes=true' >> $env:GITHUB_OUTPUT
+          }
+
+      - name: Commit and push mirrored MAR file
+        if: steps.git_status.outputs.changes == 'true'
+        shell: pwsh
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add 'docs/static/module-indexes/BicepMARModules.json'
+          git commit -m 'Update mirrored MAR file'
+          git push origin HEAD:${{ github.ref_name }}
